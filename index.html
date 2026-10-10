@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>我的刹车踏板</title>
+<meta name="description" content="不用等别人扒图，30 秒自己查你车的刹车踏板，顺手记住刹车失灵时该按哪个键。">
+<style>
+/* 布局：单栏手机优先，说明书式分步卡片；警示橙=双闪灯，只用在关键处 */
+:root{
+  --bg:#f3f2ee; --paper:#fffefb; --ink:#1d2329; --muted:#5f6870; --line:#dcd9d1;
+  --hazard:#e8740c; --hazard-soft:#fdf0e3; --ok:#2f7a4a; --ok-soft:#e6f2ea;
+  --warn:#b23a2a; --warn-soft:#f8e7e4;
+  --sans:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#15181b; --paper:#1e2226; --ink:#eceae4; --muted:#a3abb2; --line:#343a40;
+  --hazard:#ff9a3c; --hazard-soft:#3a2716; --ok:#6cc58b; --ok-soft:#1d3326;
+  --warn:#f07d6c; --warn-soft:#3b201c; color-scheme:dark}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65}
+.wrap{max-width:560px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) 16px 48px}
+header{padding-block:8px 20px}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.08em;color:var(--hazard);font-weight:600}
+.blink{width:10px;height:10px;border-radius:2px;background:var(--hazard);animation:blink 1.1s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+@media (prefers-reduced-motion:reduce){.blink{animation:none}}
+h1{font-size:28px;line-height:1.3;margin:10px 0 8px;text-wrap:balance;letter-spacing:-.01em}
+.lead{color:var(--muted);margin:0}
+nav.jump{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+nav.jump a{font-size:14px;color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--paper)}
+nav.jump a.hot{border-color:var(--hazard);color:var(--hazard);font-weight:600}
+section{margin-top:28px}
+h2{font-size:20px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+.step{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px}
+.step + .step{margin-top:12px}
+.step .no{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.step h3{font-size:17px;margin:0;line-height:1.4}
+.step p{margin:0;color:var(--muted);font-size:14px}
+.opts{display:grid;gap:8px}
+.opt{appearance:none;text-align:left;font:inherit;font-size:15px;color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.opt::before{content:"";flex:none;width:16px;height:16px;margin-top:4px;border-radius:50%;border:1.5px solid var(--muted)}
+.opt[aria-pressed="true"]{border-color:var(--hazard);background:var(--hazard-soft)}
+.opt[aria-pressed="true"]::before{border:5px solid var(--hazard)}
+.opt:focus-visible,nav.jump a:focus-visible,.btn:focus-visible{outline:2px solid var(--hazard);outline-offset:2px}
+.opt small{display:block;color:var(--muted);font-size:13px}
+.result{margin-top:16px;border-radius:14px;padding:18px;border:1.5px dashed var(--line);background:var(--paper)}
+.result.done{border-style:solid}
+.result.r-steel,.result.r-alu{border-color:var(--ok);background:var(--ok-soft)}
+.result.r-plastic{border-color:var(--hazard);background:var(--hazard-soft)}
+.result.r-unknown{border-color:var(--line)}
+.result .k{font-size:13px;color:var(--muted)}
+.result .v{font-size:24px;font-weight:700;margin:2px 0 8px}
+.result p{margin:0 0 6px;font-size:15px}
+.result .share{font-size:13px;color:var(--muted);margin-top:10px}
+.check{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.check li{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px}
+.check b{display:block}
+.check span{color:var(--muted);font-size:14px}
+.sos{background:var(--paper);border:2px solid var(--hazard);border-radius:16px;padding:18px 16px}
+.sos h2{color:var(--hazard)}
+.sos ol{list-style:none;counter-reset:s;padding:0;margin:12px 0 0;display:grid;gap:14px}
+.sos li{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start}
+.sos li::before{content:counter(s);width:32px;height:32px;border-radius:8px;background:var(--hazard);color:#fff;font-weight:700;display:grid;place-items:center;font-family:var(--mono)}
+.sos li b{display:block;font-size:16px}
+.sos li span{color:var(--muted);font-size:14px}
+.key{display:inline-block;font-family:var(--mono);font-size:13px;border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;background:var(--bg);color:var(--ink)}
+.todo{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--hazard-soft);font-size:14px}
+.btn{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer;margin-top:12px}
+footer{margin-top:36px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+footer p{margin:0 0 6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="tag"><i class="blink"></i>尊界踏板事件之后</div>
+  <h1>你车的刹车踏板，30 秒自己查清楚</h1>
+  <p class="lead">不用等别人扒图。准备一块冰箱贴，跟着下面 4 步点一点，就知道你车的踏板臂大概是什么材质。</p>
+  <nav class="jump">
+    <a href="#check">开始自查</a>
+    <a href="#sos" class="hot">刹车失灵按哪个键</a>
+  </nav>
+</header>
+
+<section id="check">
+  <h2>自查 4 步</h2>
+  <p class="sub">先把车停稳：挂 P 挡、拉手刹、熄火下电，再弯腰看。</p>
+
+  <div class="step" data-q="arm">
+    <div class="no">STEP 1 / 4</div>
+    <h3>找到踏板臂</h3>
+    <p>脚踩的是踏板面，顺着它往上、连到方向盘下方的那根“胳膊”就是踏板臂。手机打开手电照一下。</p>
+    <div class="opts">
+      <button class="opt" data-v="found">找到了</button>
+      <button class="opt" data-v="cover"><span>被护板挡住，看不太到<small>能摸到的部分也行，下面几步照样做</small></span></button>
+    </div>
+  </div>
+
+  <div class="step" data-q="magnet">
+    <div class="no">STEP 2 / 4</div>
+    <h3>拿冰箱贴吸一下踏板臂</h3>
+    <p>吸的是踏板臂，不是踏板面。很多车踏板面是铝的或者有胶皮，吸不住很正常。</p>
+    <div class="opts">
+      <button class="opt" data-v="yes">吸得住</button>
+      <button class="opt" data-v="no">吸不住</button>
+      <button class="opt" data-v="none">手边没磁铁</button>
+    </div>
+  </div>
+
+  <div class="step" data-q="knock">
+    <div class="no">STEP 3 / 4</div>
+    <h3>用指关节敲一敲</h3>
+    <div class="opts">
+      <button class="opt" data-v="crisp">“铛铛”的，声音清脆、手感冰凉</button>
+      <button class="opt" data-v="dull">“笃笃”的，声音发闷、不怎么凉</button>
+      <button class="opt" data-v="unsure">听不出来</button>
+    </div>
+  </div>
+
+  <div class="step" data-q="look">
+    <div class="no">STEP 4 / 4</div>
+    <h3>看表面长什么样</h3>
+    <div class="opts">
+      <button class="opt" data-v="metal">钢板冲压、有焊点，或者是整块铸出来的金属</button>
+      <button class="opt" data-v="ribs">表面有一格一格的加强筋，像注塑件，摸着有点塑料感</button>
+      <button class="opt" data-v="unsure">看不清</button>
+    </div>
+  </div>
+
+  <div class="result" id="result" aria-live="polite">
+    <div class="k">你的结果</div>
+    <div class="v" id="rv">还差几步</div>
+    <p id="rt">把上面 4 步都点完，这里会出结论。</p>
+    <p class="share" id="rs" hidden>截个图，去评论区告诉大家你开什么车、查出来是什么。</p>
+  </div>
+</section>
+
+<section>
+  <h2>不管什么材质，这 4 件事都该看</h2>
+  <p class="sub">材质和结构不同，不代表谁更安全。真正要留意的是下面这些信号。</p>
+  <ul class="check">
+    <li><b>踏板臂上有没有裂纹、变形</b><span>特别是和转轴、连杆连接的地方，手电照着看。</span></li>
+    <li><b>踩下去有没有异响、发软、左右晃</b><span>“咯噔”声、踩着空、踏板能横向晃，都该去店里查。</span></li>
+    <li><b>脚垫有没有卡住踏板</b><span>后加的厚脚垫、叠了两层的脚垫，最容易顶住踏板行程。</span></li>
+    <li><b>车机有没有制动系统报警</b><span>仪表上的黄色、红色制动故障灯，不要拖着开。</span></li>
+  </ul>
+</section>
+
+<section id="sos">
+  <div class="sos">
+    <h2>万一踩下去没反应</h2>
+    <p class="sub" style="margin:0">这一段建议截图存着。</p>
+    <ol>
+      <li><div><b>打双闪、按喇叭</b><span>先让周围的车知道你出状况了。</span></div></li>
+      <li><div><b>按住电子手刹 <span class="key">P</span> 不要松</b><span>很多带电子手刹的车，行驶中长按会触发四轮紧急制动，一直按到车停稳。机械手刹要慢慢往上拉，别一把拉死。</span></div></li>
+      <li><div><b>松开油门，借车自己的阻力减速</b><span>油车逐级往下降挡；电车把能量回收调到最强。</span></div></li>
+      <li><div><b>不要熄火、不要下电</b><span>一断电，方向盘助力也会跟着没了，更难控制。</span></div></li>
+      <li><div><b>实在停不下，找路边蹭着减速</b><span>贴着护栏、路肩、绿化带一点点蹭，别迎头撞。</span></div></li>
+    </ol>
+    <div class="todo"><b>今天就做一件事：</b>翻开你车的说明书（车机里一般也有电子版），搜“电子驻车”或“紧急制动”，确认你的车支不支持行驶中长按手刹制动、要按几秒。不是每台车都一样。</div>
+  </div>
+</section>
+
+<footer>
+  <p>这个页面只教你自己看，不对任何品牌、车型下结论。磁铁和敲击只能粗略判断，最准确的答案在你车的维修手册或 4S 店。</p>
+  <p>应急操作参考了车企说明书中“行驶中按住电子驻车开关可紧急制动”的说明，具体以你车辆说明书为准。</p>
+</footer>
+</div>
+
+<script>
+(function(){
+  var ans={};
+  document.querySelectorAll('.step').forEach(function(step){
+    var q=step.getAttribute('data-q');
+    step.querySelectorAll('.opt').forEach(function(b){
+      b.setAttribute('aria-pressed','false');
+      b.addEventListener('click',function(){
+        step.querySelectorAll('.opt').forEach(function(x){x.setAttribute('aria-pressed','false')});
+        b.setAttribute('aria-pressed','true');
+        ans[q]=b.getAttribute('data-v');
+        render();
+      });
+    });
+  });
+
+  function judge(a){
+    if(a.magnet==='yes') return ['r-steel','钢制踏板臂','磁铁吸得住，踏板臂基本可以确定是钢的。这是最常见的做法。'];
+    var metalSigns=(a.knock==='crisp'?1:0)+(a.look==='metal'?1:0);
+    var plasticSigns=(a.knock==='dull'?1:0)+(a.look==='ribs'?1:0);
+    if(a.magnet==='no'){
+      if(metalSigns>plasticSigns) return ['r-alu','大概率是铝合金','磁铁吸不住，但声音和外观都像金属，铝合金的可能性最大。'];
+      if(plasticSigns>metalSigns) return ['r-plastic','可能是塑料 / 复合材料','磁铁吸不住，声音发闷或者有注塑加强筋，可能是工程塑料或复合材料做的。这类踏板不少车型在用，材质本身不等于不安全，但下面 4 项检查建议认真做一遍。'];
+    }
+    if(a.magnet==='none'){
+      if(plasticSigns>metalSigns) return ['r-plastic','可能是塑料 / 复合材料','声音和外观都偏塑料感。找块冰箱贴再吸一下会更准。材质本身不等于不安全，下面 4 项检查建议认真做一遍。'];
+      if(metalSigns>plasticSigns) return ['r-unknown','像金属，钢还是铝待定','声音和外观像金属。找块冰箱贴吸一下：吸住是钢，吸不住多半是铝。'];
+    }
+    return ['r-unknown','暂时判断不了','线索互相打架。最准的办法是问 4S 店，或者在维修手册里查制动踏板总成的材质。'];
+  }
+
+  function render(){
+    var r=document.getElementById('result');
+    var need=['arm','magnet','knock','look'].filter(function(k){return !ans[k]}).length;
+    if(need){
+      r.className='result';
+      document.getElementById('rv').textContent='还差 '+need+' 步';
+      document.getElementById('rt').textContent='把上面 4 步都点完，这里会出结论。';
+      document.getElementById('rs').hidden=true;
+      return;
+    }
+    var j=judge(ans);
+    r.className='result done '+j[0];
+    document.getElementById('rv').textContent=j[1];
+    document.getElementById('rt').textContent=j[2];
+    document.getElementById('rs').hidden=false;
+  }
+})();
+</script>
+</body>
+</html>
