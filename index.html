@@ -71,6 +71,26 @@ h2{font-size:20px;margin:0 0 4px}
 .key{display:inline-block;font-family:var(--mono);font-size:13px;border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;background:var(--bg);color:var(--ink)}
 .todo{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--hazard-soft);font-size:14px}
 .btn{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer;margin-top:12px}
+.search{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px}
+.sbox{display:flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;background:var(--bg)}
+.sbox:focus-within{border-color:var(--hazard)}
+.sbox input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:16px;color:var(--ink);padding:11px 0;outline:none}
+.sugg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.sugg button{font:inherit;font-size:13px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:4px 10px;cursor:pointer}
+.sres{margin-top:12px;font-size:15px}
+.sres .m{font-weight:700;font-size:18px}
+.bars{display:grid;gap:6px;margin-top:8px}
+.bar{display:grid;grid-template-columns:5.5em 1fr 2.5em;gap:8px;align-items:center;font-size:14px}
+.bar i{display:block;height:10px;border-radius:5px;background:var(--hazard)}
+.bar .n{font-family:var(--mono);color:var(--muted);text-align:right}
+.off{margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--ok-soft);font-size:14px}
+.off b{display:block;font-size:12px;color:var(--ok)}
+.off p{margin:2px 0}
+.off a{font-size:12px;color:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+.copy{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.copy code{font-family:var(--sans);font-size:14px;background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:6px 10px;user-select:all}
+.copy .btn{margin-top:0}
 footer{margin-top:36px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
 footer p{margin:0 0 6px}
 </style>
@@ -81,12 +101,23 @@ footer p{margin:0 0 6px}
 <header>
   <div class="tag"><i class="blink"></i>尊界踏板事件之后</div>
   <h1>你车的刹车踏板，30 秒自己查清楚</h1>
-  <p class="lead">不用等别人扒图。准备一块冰箱贴，跟着下面 4 步点一点，就知道你车的踏板臂大概是什么材质。</p>
+  <p class="lead">先搜搜看有没有车主查过你这款车。没有的话，准备一块冰箱贴，跟着 4 步点一点，自己查出来。</p>
   <nav class="jump">
+    <a href="#search">搜你的车</a>
     <a href="#check">开始自查</a>
     <a href="#sos" class="hot">刹车失灵按哪个键</a>
   </nav>
 </header>
+
+<section id="search">
+  <h2>搜你的车</h2>
+  <p class="sub">两类数据：车企公开说明过的（附出处），和车主按下面步骤自查后的留言。</p>
+  <div class="search">
+    <label class="sbox" for="q"><span aria-hidden="true">🔍</span><input id="q" type="search" placeholder="输入车型，比如 秦PLUS / Model Y / 轩逸" autocomplete="off"></label>
+    <div class="sugg" id="sugg"></div>
+    <div class="sres" id="sres" hidden></div>
+  </div>
+</section>
 
 <section id="check">
   <h2>自查 4 步</h2>
@@ -95,7 +126,7 @@ footer p{margin:0 0 6px}
   <div class="step" data-q="arm">
     <div class="no">STEP 1 / 4</div>
     <h3>找到踏板臂</h3>
-    <p>脚踩的是踏板面，顺着它往上、连到方向盘下方的那根“胳膊”就是踏板臂。手机打开手电照一下。</p>
+    <p>脚踩的是踏板面，顺着它往上、连到方向盘下方的那根“胳膊”就是踏板臂。再往上，把它固定在车身上的那块就是支架，这次尊界断的就是支架。手机打开手电照一下。</p>
     <div class="opts">
       <button class="opt" data-v="found">找到了</button>
       <button class="opt" data-v="cover"><span>被护板挡住，看不太到<small>能摸到的部分也行，下面几步照样做</small></span></button>
@@ -137,7 +168,10 @@ footer p{margin:0 0 6px}
     <div class="k">你的结果</div>
     <div class="v" id="rv">还差几步</div>
     <p id="rt">把上面 4 步都点完，这里会出结论。</p>
-    <p class="share" id="rs" hidden>截个图，去评论区告诉大家你开什么车、查出来是什么。</p>
+    <div id="rs" hidden>
+      <p class="share">复制下面这句发到小红书评论区，我会把它汇总进「搜你的车」：</p>
+      <div class="copy"><code id="ctext"></code><button class="btn" id="cbtn" type="button">复制</button></div>
+    </div>
   </div>
 </section>
 
@@ -145,7 +179,7 @@ footer p{margin:0 0 6px}
   <h2>不管什么材质，这 4 件事都该看</h2>
   <p class="sub">材质和结构不同，不代表谁更安全。真正要留意的是下面这些信号。</p>
   <ul class="check">
-    <li><b>踏板臂上有没有裂纹、变形</b><span>特别是和转轴、连杆连接的地方，手电照着看。</span></li>
+    <li><b>踏板臂和支架有没有裂纹、变形</b><span>特别是转轴、固定螺栓附近，手电照着看。</span></li>
     <li><b>踩下去有没有异响、发软、左右晃</b><span>“咯噔”声、踩着空、踏板能横向晃，都该去店里查。</span></li>
     <li><b>脚垫有没有卡住踏板</b><span>后加的厚脚垫、叠了两层的脚垫，最容易顶住踏板行程。</span></li>
     <li><b>车机有没有制动系统报警</b><span>仪表上的黄色、红色制动故障灯，不要拖着开。</span></li>
@@ -173,6 +207,7 @@ footer p{margin:0 0 6px}
 </footer>
 </div>
 
+<script src="data.js"></script>
 <script>
 (function(){
   var ans={};
@@ -219,7 +254,61 @@ footer p{margin:0 0 6px}
     document.getElementById('rv').textContent=j[1];
     document.getElementById('rt').textContent=j[2];
     document.getElementById('rs').hidden=false;
+    renderCopy();
   }
+
+  var LABEL={steel:'钢',alu:'铝合金',plastic:'塑料/复合材料',unknown:'判断不了'};
+  var R=window.REPORTS||[], M=window.MODELS||[];
+  var picked='';
+  function norm(t){return (t||'').toLowerCase().replace(/[\s\-_·]/g,'')}
+  function hit(name,q){var a=norm(name),b=norm(q);if(!b)return false;return a.indexOf(b)>-1||norm(name.split(' ').slice(1).join(''))===b}
+  var qi=document.getElementById('q'),sg=document.getElementById('sugg'),sr=document.getElementById('sres');
+  function suggest(){
+    var q=qi.value.trim();sg.innerHTML='';
+    if(!q){sr.hidden=true;return}
+    var names=R.map(function(r){return r.model}).concat(M);
+    var seen={},list=names.filter(function(n){if(seen[n]||!hit(n,q))return false;seen[n]=1;return true}).slice(0,8);
+    list.forEach(function(n){var b=document.createElement('button');b.type='button';b.textContent=n;b.onclick=function(){qi.value=n;show(n)};sg.appendChild(b)});
+    var exact=list.filter(function(n){return norm(n)===norm(q)||norm(n.split(' ').slice(1).join(''))===norm(q)})[0];
+    show(exact||(list.length===1?list[0]:q),!exact&&list.length!==1);
+  }
+  function show(name,loose){
+    picked=name;sg.innerHTML=loose?sg.innerHTML:'';
+    var r=R.filter(function(x){return norm(x.model)===norm(name)})[0];
+    sr.hidden=false;sr.innerHTML='';
+    var m=document.createElement('div');m.className='m';m.textContent=name;sr.appendChild(m);
+    if(!loose){(window.OFFICIAL||[]).filter(function(o){return o.match?norm(o.match)===norm(name):norm(name).indexOf(norm(o.brand))===0}).forEach(function(o){
+      var d=document.createElement('div');d.className='off';
+      var b=document.createElement('b');b.textContent='车企公开说明';d.appendChild(b);
+      var t=document.createElement('p');t.textContent=o.text;d.appendChild(t);
+      var a=document.createElement('a');a.href=o.src;a.target='_blank';a.rel='noopener';a.textContent=o.by+' · 看出处';d.appendChild(a);
+      sr.appendChild(d)})}
+    if(loose){var t=document.createElement('p');t.className='note';t.textContent='点上面的车型看结果；列表里没有也没关系，下面自查完照样能留言。';sr.appendChild(t)}
+    else if(!r){var p=document.createElement('p');p.style.margin='8px 0 0';p.textContent='这款车还没有车主自查记录。你来当第一个：做完下面 4 步，把结果留言到评论区。';sr.appendChild(p);
+      var a=document.createElement('a');a.href='#check';a.className='btn';a.style.display='inline-block';a.style.textDecoration='none';a.textContent='开始自查';sr.appendChild(a)}
+    else{
+      var tot=r.steel+r.alu+r.plastic+r.unknown;
+      var p2=document.createElement('p');p2.style.margin='4px 0 0';p2.textContent=tot+' 位车主自查过：';sr.appendChild(p2);
+      var bars=document.createElement('div');bars.className='bars';
+      ['steel','alu','plastic','unknown'].forEach(function(k){if(!r[k])return;var row=document.createElement('div');row.className='bar';
+        row.innerHTML='<span></span><i></i><span class="n"></span>';row.children[0].textContent=LABEL[k];row.children[1].style.width=(r[k]/tot*100)+'%';row.children[2].textContent=r[k]+'人';bars.appendChild(row)});
+      sr.appendChild(bars);
+      var n=document.createElement('p');n.className='note';n.textContent='车主用磁铁、敲击、目测自查的结果，仅供参考；截至 '+(window.REPORTS_UPDATED||'')+'。';sr.appendChild(n);
+    }
+    renderCopy();
+  }
+  qi.addEventListener('input',suggest);
+  function renderCopy(){
+    var c=document.getElementById('ctext');if(!c)return;
+    var v=document.getElementById('rv').textContent;
+    c.textContent='我的车：'+(picked||'（写上车型）')+'，自查结果：'+v;
+  }
+  document.getElementById('cbtn').addEventListener('click',function(){
+    var b=this,t=document.getElementById('ctext').textContent;
+    function ok(){b.textContent='已复制'}
+    function fb(){var rg=document.createRange();rg.selectNodeContents(document.getElementById('ctext'));var sel=getSelection();sel.removeAllRanges();sel.addRange(rg);b.textContent='已选中，长按复制'}
+    try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}
+  });
 })();
 </script>
 </body>
